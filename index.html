@@ -6,64 +6,558 @@
   <title>지호한자</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Malgun Gothic', sans-serif;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      min-height: 100vh;
-      color: white;
-    }
-    .header {
-      text-align: center;
-      padding: 2rem 1rem 1rem;
-    }
-    .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    body { font-family: 'Malgun Gothic', sans-serif; background: linear-gradient(135deg, #667eea, #764ba2); min-height: 100vh; color: white; }
+
+    /* 헤더 */
+    .header { text-align: center; padding: 2rem 1rem 1rem; }
+    .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
     .header p { opacity: 0.9; font-size: 1.1rem; }
-    .grade-grid {
+
+    /* 메뉴 화면 */
+    #menu-screen .grade-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 1rem;
-      max-width: 900px;
-      margin: 2rem auto;
-      padding: 0 1rem;
+      gap: 1rem; max-width: 900px; margin: 1.5rem auto; padding: 0 1rem;
     }
     .grade-card {
-      background: rgba(255,255,255,0.15);
-      border-radius: 1rem;
-      padding: 1.5rem 1rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: 2px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.15); border-radius: 1rem;
+      padding: 1.5rem 1rem; text-align: center; cursor: pointer;
+      transition: all 0.2s; border: 2px solid rgba(255,255,255,0.3);
+      position: relative;
     }
-    .grade-card:hover {
-      background: rgba(255,255,255,0.25);
-      transform: translateY(-5px);
-    }
+    .grade-card:hover { background: rgba(255,255,255,0.25); transform: translateY(-5px); }
+    .grade-card.locked { opacity: 0.5; cursor: not-allowed; }
+    .grade-card.locked:hover { transform: none; }
+    .lock-icon { position: absolute; top: 0.5rem; right: 0.5rem; font-size: 1rem; }
     .grade-card .emoji { font-size: 2.5rem; }
     .grade-card .name { font-size: 1.3rem; font-weight: bold; margin-top: 0.5rem; }
+
+    /* 등급 선택 화면 */
+    #grade-screen { display: none; text-align: center; padding: 2rem 1rem; }
+    .grade-title { font-size: 2rem; margin-bottom: 2rem; }
+    .btn-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .btn { padding: 1rem 2rem; font-size: 1.1rem; border: none; border-radius: 0.75rem; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+    .btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+    .btn-green { background: #51cf66; color: white; }
+    .btn-red { background: #ff6b6b; color: white; }
+    .btn-back { background: rgba(255,255,255,0.2); color: white; border: 2px solid white; }
+
+    /* 학습 화면 */
+    #learn-screen { display: none; padding: 1rem; max-width: 900px; margin: 0 auto; }
+    .learn-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .learn-title { font-size: 1.5rem; }
+    .progress { font-size: 1rem; opacity: 0.8; }
+    .hanja-card-big {
+      background: white; color: #333; border-radius: 1.5rem;
+      padding: 2rem; margin-bottom: 1.5rem;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    .hanja-main { font-size: 6rem; text-align: center; color: #667eea; font-weight: bold; line-height: 1; margin-bottom: 1rem; }
+    .hanja-hun { font-size: 1.5rem; text-align: center; color: #555; margin-bottom: 0.3rem; }
+    .hanja-meaning { font-size: 1.1rem; text-align: center; color: #777; margin-bottom: 1.5rem; }
+    .section { margin-bottom: 1.2rem; }
+    .section-title { font-size: 1rem; font-weight: bold; color: #667eea; margin-bottom: 0.5rem; border-bottom: 2px solid #667eea; padding-bottom: 0.3rem; }
+    .word-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .word-tag { background: #f0f0ff; color: #333; padding: 0.3rem 0.7rem; border-radius: 2rem; font-size: 0.9rem; }
+    .antonym-box { background: #fff0f0; border-radius: 0.75rem; padding: 1rem; }
+    .antonym-hanja { font-size: 2rem; color: #ff6b6b; font-weight: bold; }
+    .homonym-item { background: #f0fff4; border-radius: 0.75rem; padding: 0.75rem; margin-bottom: 0.5rem; }
+    .homonym-hanja { font-size: 1.5rem; color: #51cf66; font-weight: bold; }
+    .nav-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+    /* 관리자 패널 */
+    #admin-btn { position: fixed; bottom: 1.5rem; right: 1.5rem; background: rgba(255,255,255,0.2); border: 2px solid white; color: white; width: 50px; height: 50px; border-radius: 50%; font-size: 1.3rem; cursor: pointer; }
+    #admin-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; }
+    #admin-modal.show { display: flex; }
+    .admin-box { background: white; color: #333; border-radius: 1rem; padding: 2rem; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
+    .admin-box h2 { margin-bottom: 1.5rem; color: #667eea; }
+    .admin-input { width: 100%; padding: 0.75rem; border: 2px solid #ddd; border-radius: 0.5rem; font-size: 1rem; margin-bottom: 1rem; }
+    .admin-grade-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .admin-grade-item { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: #f8f9fa; border-radius: 0.5rem; }
+    .toggle-btn { padding: 0.4rem 1rem; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: bold; }
+    .toggle-btn.open { background: #51cf66; color: white; }
+    .toggle-btn.closed { background: #ff6b6b; color: white; }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
+
+<!-- 메뉴 화면 -->
+<div id="menu-screen">
   <div class="header">
     <h1>🌟 지호한자 🌟</h1>
     <p>한자 마법으로 세상을 구하자!</p>
   </div>
-  <div class="grade-grid">
-    <div class="grade-card"><div class="emoji">🌱</div><div class="name">8급</div></div>
-    <div class="grade-card"><div class="emoji">🌿</div><div class="name">준7급</div></div>
-    <div class="grade-card"><div class="emoji">🍀</div><div class="name">7급</div></div>
-    <div class="grade-card"><div class="emoji">💧</div><div class="name">준6급</div></div>
-    <div class="grade-card"><div class="emoji">🌊</div><div class="name">6급</div></div>
-    <div class="grade-card"><div class="emoji">⚡</div><div class="name">준5급</div></div>
-    <div class="grade-card"><div class="emoji">🔥</div><div class="name">5급</div></div>
-    <div class="grade-card"><div class="emoji">🌪️</div><div class="name">준4급</div></div>
-    <div class="grade-card"><div class="emoji">❄️</div><div class="name">4급</div></div>
-    <div class="grade-card"><div class="emoji">🐉</div><div class="name">준3급</div></div>
-    <div class="grade-card"><div class="emoji">⭐</div><div class="name">3급</div></div>
-    <div class="grade-card"><div class="emoji">🌙</div><div class="name">2급</div></div>
-    <div class="grade-card"><div class="emoji">☀️</div><div class="name">1급</div></div>
-    <div class="grade-card"><div class="emoji">💎</div><div class="name">준특급</div></div>
-    <div class="grade-card"><div class="emoji">👑</div><div class="name">특급</div></div>
+  <div class="grade-grid" id="grade-grid"></div>
+</div>
+
+<!-- 등급 선택 화면 -->
+<div id="grade-screen">
+  <div class="header">
+    <div class="grade-title" id="grade-title"></div>
+    <div class="btn-group">
+      <button class="btn btn-green" onclick="showLearn()">📚 학습하기</button>
+      <button class="btn btn-red" onclick="alert('준비 중!')">⚔️ 보스 전투</button>
+    </div>
+    <button class="btn btn-back" onclick="showMenu()">← 돌아가기</button>
   </div>
+</div>
+
+<!-- 학습 화면 -->
+<div id="learn-screen">
+  <div class="learn-header">
+    <div class="learn-title" id="learn-title"></div>
+    <div class="progress" id="learn-progress"></div>
+  </div>
+  <div class="hanja-card-big" id="hanja-card"></div>
+  <div class="nav-btns">
+    <button class="btn btn-back" onclick="prevHanja()">◀ 이전</button>
+    <button class="btn btn-back" onclick="showGrade()">목록</button>
+    <button class="btn btn-green" onclick="nextHanja()">다음 ▶</button>
+  </div>
+</div>
+
+<!-- 관리자 버튼 -->
+<button id="admin-btn" onclick="openAdmin()">⚙️</button>
+
+<!-- 관리자 모달 -->
+<div id="admin-modal">
+  <div class="admin-box">
+    <h2>🔐 관리자 패널</h2>
+    <div id="admin-login">
+      <input type="password" class="admin-input" id="admin-pw" placeholder="비밀번호 입력">
+      <div class="btn-group">
+        <button class="btn btn-green" onclick="checkPw()">로그인</button>
+        <button class="btn btn-back" onclick="closeAdmin()">취소</button>
+      </div>
+    </div>
+    <div id="admin-panel" class="hidden">
+      <p style="margin-bottom:1rem; color:#666;">등급을 열거나 잠글 수 있습니다.</p>
+      <div class="admin-grade-list" id="admin-grade-list"></div>
+      <div style="margin-top:1.5rem; text-align:center;">
+        <button class="btn btn-back" onclick="closeAdmin()">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ADMIN_PW = "1234";
+
+const GRADES = [
+  { name: "8급", emoji: "🌱" },
+  { name: "준7급", emoji: "🌿" },
+  { name: "7급", emoji: "🍀" },
+  { name: "준6급", emoji: "💧" },
+  { name: "6급", emoji: "🌊" },
+  { name: "준5급", emoji: "⚡" },
+  { name: "5급", emoji: "🔥" },
+  { name: "준4급", emoji: "🌪️" },
+  { name: "4급", emoji: "❄️" },
+  { name: "준3급", emoji: "🐉" },
+  { name: "3급", emoji: "⭐" },
+  { name: "2급", emoji: "🌙" },
+  { name: "1급", emoji: "☀️" },
+  { name: "준특급", emoji: "💎" },
+  { name: "특급", emoji: "👑" }
+];
+
+// 잠금 상태 (localStorage)
+function getLocked() {
+  const saved = localStorage.getItem("jiho_locked");
+  if (saved) return JSON.parse(saved);
+  // 기본: 8급만 열림
+  const locked = {};
+  GRADES.forEach((g, i) => { locked[g.name] = i !== 0; });
+  return locked;
+}
+function saveLocked(locked) {
+  localStorage.setItem("jiho_locked", JSON.stringify(locked));
+}
+
+const HANJA_DATA = {
+  "8급": [
+    {
+      hanja: "一", hun: "한 일", eum: "일", meaning: "하나, 첫째",
+      words: ["一生(일생) 한평생", "一月(일월) 1월", "一致(일치) 꼭 맞음", "一家(일가) 한 집안", "一方(일방) 한쪽", "一體(일체) 한 몸", "一等(일등) 첫째 등급", "一行(일행) 함께 가는 사람", "一心(일심) 한마음", "統一(통일) 하나로 합침", "一流(일류) 최고 수준", "一定(일정) 일정하게 정해짐"],
+      antonym: { hanja: "萬", hun: "만 만", eum: "만", words: ["萬物(만물) 모든 것", "萬年(만년) 오랜 세월", "萬能(만능) 모든 것을 할 수 있음"] },
+      homonym: [{ hanja: "日", hun: "날 일", eum: "일", words: ["日記(일기) 날마다 기록", "日出(일출) 해돋이", "日常(일상) 날마다 생활"] }]
+    },
+    {
+      hanja: "二", hun: "두 이", eum: "이", meaning: "둘, 두 번째",
+      words: ["二月(이월) 2월", "二重(이중) 두 겹", "二等(이등) 둘째 등급", "二分(이분) 둘로 나눔", "二人(이인) 두 사람", "第二(제이) 두 번째", "二次(이차) 두 번째", "二世(이세) 두 번째 세대", "二心(이심) 두 마음", "二項(이항) 두 가지 항목"],
+      antonym: { hanja: "一", hun: "한 일", eum: "일", words: ["一等(일등) 첫째", "一位(일위) 첫 번째 자리"] },
+      homonym: [{ hanja: "以", hun: "써 이", eum: "이", words: ["以上(이상) 그 이상", "以下(이하) 그 이하", "以前(이전) 그 이전"] }]
+    },
+    {
+      hanja: "三", hun: "석 삼", eum: "삼", meaning: "셋, 세 번째",
+      words: ["三月(삼월) 3월", "三角(삼각) 세 각", "三等(삼등) 셋째", "三代(삼대) 세 세대", "三國(삼국) 세 나라", "三人(삼인) 세 사람", "三色(삼색) 세 가지 색", "三伏(삼복) 여름 세 복날", "三千里(삼천리) 우리나라 전체", "三拍子(삼박자) 세 박자", "三振(삼진) 세 번 스트라이크"],
+      antonym: { hanja: "一", hun: "한 일", eum: "일", words: ["一角(일각) 한 각", "一代(일대) 한 세대"] },
+      homonym: [{ hanja: "蔘", hun: "인삼 삼", eum: "삼", words: ["人蔘(인삼) 인삼", "紅蔘(홍삼) 홍삼", "蔘雞湯(삼계탕) 삼계탕"] }]
+    },
+    {
+      hanja: "四", hun: "넉 사", eum: "사", meaning: "넷, 네 번째",
+      words: ["四月(사월) 4월", "四角(사각) 네 각", "四季(사계) 네 계절", "四方(사방) 네 방향", "四肢(사지) 팔다리", "四面(사면) 네 면", "四色(사색) 네 가지 색", "四寸(사촌) 사촌", "四重奏(사중주) 네 악기 연주", "四字成語(사자성어) 네 글자 성어"],
+      antonym: { hanja: "一", hun: "한 일", eum: "일", words: ["一方(일방) 한쪽", "一角(일각) 한 각"] },
+      homonym: [{ hanja: "死", hun: "죽을 사", eum: "사", words: ["死亡(사망) 죽음", "死力(사력) 죽을힘"] }, { hanja: "事", hun: "일 사", eum: "사", words: ["事件(사건) 사건", "事故(사고) 사고", "事實(사실) 사실"] }]
+    },
+    {
+      hanja: "五", hun: "다섯 오", eum: "오", meaning: "다섯, 다섯 번째",
+      words: ["五月(오월) 5월", "五感(오감) 다섯 가지 감각", "五色(오색) 다섯 가지 색", "五行(오행) 다섯 가지 원소", "五臟(오장) 다섯 장기", "五穀(오곡) 다섯 가지 곡식", "五大洋(오대양) 다섯 대양", "五輪(오륜) 올림픽 다섯 고리", "五重奏(오중주) 다섯 악기 연주"],
+      antonym: { hanja: "十", hun: "열 십", eum: "십", words: ["十倍(십배) 열 배", "十月(시월) 10월"] },
+      homonym: [{ hanja: "午", hun: "낮 오", eum: "오", words: ["午前(오전) 오전", "午後(오후) 오후", "正午(정오) 정확히 낮 12시"] }, { hanja: "誤", hun: "그릇 오", eum: "오", words: ["誤解(오해) 잘못 이해함", "誤答(오답) 틀린 답"] }]
+    },
+    {
+      hanja: "六", hun: "여섯 육", eum: "육", meaning: "여섯, 여섯 번째",
+      words: ["六月(유월) 6월", "六角(육각) 여섯 각", "六感(육감) 여섯 번째 감각", "六大洲(육대주) 여섯 대륙", "六法(육법) 여섯 가지 법", "六十(육십) 예순", "六親(육친) 가까운 친척", "六面體(육면체) 여섯 면의 입체"],
+      antonym: { hanja: "三", hun: "석 삼", eum: "삼", words: ["三角(삼각) 세 각", "三等(삼등) 셋째"] },
+      homonym: [{ hanja: "肉", hun: "고기 육", eum: "육", words: ["肉體(육체) 몸", "肉食(육식) 고기를 먹음", "肉親(육친) 혈육"] }]
+    },
+    {
+      hanja: "七", hun: "일곱 칠", eum: "칠", meaning: "일곱, 일곱 번째",
+      words: ["七月(칠월) 7월", "七色(칠색) 일곱 가지 색", "七夕(칠석) 음력 7월 7일", "七十(칠십) 일흔", "七寶(칠보) 일곱 가지 보물", "七星(칠성) 북두칠성", "七顛八起(칠전팔기) 일곱 번 넘어져도 여덟 번 일어남"],
+      antonym: { hanja: "八", hun: "여덟 팔", eum: "팔", words: ["八月(팔월) 8월", "八方(팔방) 여덟 방향"] },
+      homonym: [{ hanja: "漆", hun: "옻 칠", eum: "칠", words: ["漆黑(칠흑) 칠흑같이 어두움", "漆器(칠기) 옻칠한 그릇"] }]
+    },
+    {
+      hanja: "八", hun: "여덟 팔", eum: "팔", meaning: "여덟, 여덟 번째",
+      words: ["八月(팔월) 8월", "八方(팔방) 여덟 방향", "八角(팔각) 여덟 각", "八十(팔십) 여든", "八道(팔도) 우리나라 여덟 도", "八字(팔자) 운명", "七顛八起(칠전팔기) 어떤 어려움도 이겨냄"],
+      antonym: { hanja: "七", hun: "일곱 칠", eum: "칠", words: ["七月(칠월) 7월", "七色(칠색) 일곱 색"] },
+      homonym: []
+    },
+    {
+      hanja: "九", hun: "아홉 구", eum: "구", meaning: "아홉, 아홉 번째",
+      words: ["九月(구월) 9월", "九十(구십) 아흔", "九九(구구) 구구단", "九段(구단) 최고 단수", "九死一生(구사일생) 겨우 살아남", "九天(구천) 하늘 끝", "九族(구족) 아홉 가지 친척"],
+      antonym: { hanja: "一", hun: "한 일", eum: "일", words: ["一等(일등) 첫째", "一月(일월) 1월"] },
+      homonym: [{ hanja: "口", hun: "입 구", eum: "구", words: ["口味(구미) 입맛", "人口(인구) 사람 수"] }, { hanja: "球", hun: "공 구", eum: "구", words: ["地球(지구) 지구", "野球(야구) 야구"] }]
+    },
+    {
+      hanja: "十", hun: "열 십", eum: "십", meaning: "열, 열 번째",
+      words: ["十月(시월) 10월", "十字(십자) 열 십자 모양", "十年(십년) 열 해", "十分(십분) 충분히", "十進法(십진법) 10을 단위로 계산", "十八番(십팔번) 가장 잘 하는 것", "十二支(십이지) 열두 띠"],
+      antonym: { hanja: "一", hun: "한 일", eum: "일", words: ["一月(일월) 1월", "一等(일등) 첫째"] },
+      homonym: [{ hanja: "食", hun: "먹을 식", emu: "식", words: ["食事(식사) 밥 먹기", "食品(식품) 음식물", "食堂(식당) 밥 먹는 곳"] }]
+    },
+    {
+      hanja: "大", hun: "클 대", eum: "대", meaning: "크다, 위대하다",
+      words: ["大學(대학) 대학교", "大人(대인) 어른", "大門(대문) 큰 문", "大王(대왕) 위대한 왕", "大國(대국) 큰 나라", "大陸(대륙) 큰 땅덩어리", "大氣(대기) 지구 대기", "大會(대회) 큰 모임", "大統領(대통령) 나라의 지도자", "偉大(위대) 크고 훌륭함", "大聲(대성) 큰 소리", "大自然(대자연) 넓은 자연"],
+      antonym: { hanja: "小", hun: "작을 소", eum: "소", words: ["小學(소학) 초등학교", "小人(소인) 어린이", "小說(소설) 소설책", "小國(소국) 작은 나라"] },
+      homonym: [{ hanja: "對", hun: "대할 대", eum: "대", words: ["對話(대화) 서로 이야기함", "對答(대답) 답함", "對決(대결) 맞서 겨룸"] }, { hanja: "代", hun: "대신할 대", eum: "대", words: ["代表(대표) 대표", "時代(시대) 시대", "代理(대리) 대신함"] }]
+    },
+    {
+      hanja: "小", hun: "작을 소", eum: "소", meaning: "작다, 어리다",
+      words: ["小學(소학) 초등학교", "小說(소설) 소설", "小人(소인) 어린이", "小食(소식) 적게 먹음", "小國(소국) 작은 나라", "小心(소심) 겁이 많음", "小包(소포) 작은 소포", "縮小(축소) 줄여 작게 함", "小兒(소아) 어린 아이", "小品(소품) 작은 작품"],
+      antonym: { hanja: "大", hun: "클 대", eum: "대", words: ["大學(대학) 대학교", "大人(대인) 어른", "大門(대문) 큰 문"] },
+      homonym: [{ hanja: "消", hun: "사라질 소", eum: "소", words: ["消火(소화) 불을 끔", "消化(소화) 음식 소화", "消息(소식) 소식"] }, { hanja: "所", hun: "바 소", eum: "소", words: ["所願(소원) 바라는 것", "所有(소유) 가짐", "場所(장소) 장소"] }]
+    },
+    {
+      hanja: "山", hun: "뫼 산", eum: "산", meaning: "산",
+      words: ["山脈(산맥) 산줄기", "山頂(산정) 산꼭대기", "山林(산림) 산과 숲", "山川(산천) 산과 내", "登山(등산) 산에 오름", "山岳(산악) 높은 산", "山村(산촌) 산속 마을", "火山(화산) 불을 뿜는 산", "深山(심산) 깊은 산", "山賊(산적) 산속 도적"],
+      antonym: { hanja: "海", hun: "바다 해", eum: "해", words: ["海洋(해양) 넓은 바다", "海水(해수) 바닷물", "海岸(해안) 바닷가"] },
+      homonym: [{ hanja: "産", hun: "낳을 산", eum: "산", words: ["産業(산업) 산업", "生産(생산) 만들어냄", "産地(산지) 생산지"] }]
+    },
+    {
+      hanja: "水", hun: "물 수", eum: "수", meaning: "물",
+      words: ["水道(수도) 수돗물", "水力(수력) 물의 힘", "水泳(수영) 수영", "水面(수면) 물의 표면", "水分(수분) 물기", "洪水(홍수) 큰 물", "水準(수준) 기준", "水質(수질) 물의 질", "飮水(음수) 물을 마심", "地下水(지하수) 땅속의 물", "水深(수심) 물의 깊이"],
+      antonym: { hanja: "火", hun: "불 화", eum: "화", words: ["火山(화산) 불을 뿜는 산", "火力(화력) 불의 힘", "火災(화재) 불로 인한 재난"] },
+      homonym: [{ hanja: "數", hun: "셀 수", eum: "수", words: ["數學(수학) 수학", "數字(수자) 숫자", "數量(수량) 수와 양"] }, { hanja: "壽", hun: "목숨 수", eum: "수", words: ["壽命(수명) 목숨", "長壽(장수) 오래 삶"] }]
+    },
+    {
+      hanja: "火", hun: "불 화", eum: "화", meaning: "불",
+      words: ["火山(화산) 불을 뿜는 산", "火力(화력) 불의 힘", "火災(화재) 불로 인한 재난", "火曜日(화요일) 화요일", "點火(점화) 불을 붙임", "火病(화병) 화가 쌓여 생긴 병", "放火(방화) 불을 지름", "消火(소화) 불을 끔", "烽火(봉화) 옛날 신호 불", "火葬(화장) 불로 태우는 장례"],
+      antonym: { hanja: "水", hun: "물 수", eum: "수", words: ["水道(수도) 수돗물", "水力(수력) 물의 힘", "洪水(홍수) 큰 물"] },
+      homonym: [{ hanja: "花", hun: "꽃 화", eum: "화", words: ["花園(화원) 꽃밭", "花瓶(화병) 꽃병", "花草(화초) 꽃과 풀"] }, { hanja: "話", hun: "말씀 화", eum: "화", words: ["話題(화제) 이야기 주제", "對話(대화) 서로 이야기함", "電話(전화) 전화"] }]
+    },
+    {
+      hanja: "木", hun: "나무 목", eum: "목", meaning: "나무",
+      words: ["木材(목재) 나무 재료", "木曜日(목요일) 목요일", "木手(목수) 나무 장인", "木馬(목마) 나무로 만든 말", "木造(목조) 나무로 만든", "植木(식목) 나무를 심음", "大木(대목) 큰 나무", "原木(원목) 가공 안 한 나무", "木石(목석) 나무와 돌"],
+      antonym: { hanja: "金", hun: "쇠 금", eum: "금", words: ["金屬(금속) 금속", "金曜日(금요일) 금요일", "黃金(황금) 황금"] },
+      homonym: [{ hanja: "目", hun: "눈 목", eum: "목", words: ["目標(목표) 목표", "目的(목적) 목적", "注目(주목) 주목"] }, { hanja: "牧", hun: "칠 목", eum: "목", words: ["牧場(목장) 목장", "牧師(목사) 목사"] }]
+    },
+    {
+      hanja: "金", hun: "쇠 금", eum: "금", meaning: "금, 쇠, 돈",
+      words: ["金屬(금속) 금속", "金曜日(금요일) 금요일", "黃金(황금) 황금", "金額(금액) 돈의 액수", "金賞(금상) 금 상", "金魚(금어) 금붕어", "現金(현금) 현금", "金字塔(금자탑) 위대한 업적", "金融(금융) 돈의 흐름", "金庫(금고) 귀중품 보관함"],
+      antonym: { hanja: "木", hun: "나무 목", eum: "목", words: ["木材(목재) 나무 재료", "木造(목조) 나무로 만든"] },
+      homonym: [{ hanja: "禁", hun: "금할 금", eum: "금", words: ["禁止(금지) 금지", "禁煙(금연) 담배를 피우지 않음"] }]
+    },
+    {
+      hanja: "土", hun: "흙 토", eum: "토", meaning: "흙, 땅",
+      words: ["土地(토지) 땅", "土曜日(토요일) 토요일", "土産(토산) 그 지방 특산물", "土木(토목) 공사", "國土(국토) 나라의 땅", "土器(토기) 흙으로 만든 그릇", "領土(영토) 나라의 영역", "黃土(황토) 누런 흙", "粘土(점토) 찰흙", "土着(토착) 그 땅에 오래 삶"],
+      antonym: { hanja: "天", hun: "하늘 천", eum: "천", words: ["天氣(천기) 날씨", "天國(천국) 하늘나라"] },
+      homonym: [{ hanja: "兎", hun: "토끼 토", eum: "토", words: ["兎年(토년) 토끼 해"] }]
+    },
+    {
+      hanja: "日", hun: "날 일", eum: "일", meaning: "날, 해, 태양",
+      words: ["日記(일기) 날마다 기록", "日出(일출) 해돋이", "日常(일상) 날마다 생활", "日曜日(일요일) 일요일", "日本(일본) 일본", "日光(일광) 햇빛", "日程(일정) 날짜 계획", "生日(생일) 태어난 날", "平日(평일) 보통 날", "休日(휴일) 쉬는 날", "日氣(일기) 날씨"],
+      antonym: { hanja: "月", hun: "달 월", eum: "월", words: ["月光(월광) 달빛", "月曜日(월요일) 월요일", "月給(월급) 한 달 봉급"] },
+      homonym: [{ hanja: "一", hun: "한 일", eum: "일", words: ["一等(일등) 첫째", "一月(일월) 1월"] }]
+    },
+    {
+      hanja: "月", hun: "달 월", eum: "월", meaning: "달, 월",
+      words: ["月光(월광) 달빛", "月曜日(월요일) 월요일", "月給(월급) 한 달 봉급", "月刊(월간) 매달 펴냄", "滿月(만월) 보름달", "月蝕(월식) 달이 가려짐", "歲月(세월) 세월", "每月(매월) 매달", "月餅(월병) 중국 과자"],
+      antonym: { hanja: "日", hun: "날 일", eum: "일", words: ["日記(일기) 날마다 기록", "日出(일출) 해돋이"] },
+      homonym: [{ hanja: "越", hun: "넘을 월", eum: "월", words: ["越南(월남) 베트남", "超越(초월) 뛰어넘음"] }]
+    },
+    {
+      hanja: "天", hun: "하늘 천", eum: "천", meaning: "하늘",
+      words: ["天氣(천기) 날씨", "天國(천국) 하늘나라", "天才(천재) 뛰어난 재능", "天地(천지) 하늘과 땅", "天使(천사) 하늘의 사자", "天文(천문) 하늘의 현상", "天然(천연) 자연 그대로", "天下(천하) 세상 전체", "天堂(천당) 천국", "天命(천명) 하늘의 명령"],
+      antonym: { hanja: "地", hun: "땅 지", eum: "지", words: ["地球(지구) 지구", "地面(지면) 땅 표면", "地下(지하) 땅 아래"] },
+      homonym: [{ hanja: "千", hun: "천 천", eum: "천", words: ["千年(천년) 천 해", "千里(천리) 먼 거리"] }]
+    },
+    {
+      hanja: "地", hun: "땅 지", eum: "지", meaning: "땅, 지구",
+      words: ["地球(지구) 지구", "地面(지면) 땅 표면", "地下(지하) 땅 아래", "地圖(지도) 지도", "地域(지역) 어떤 지역", "地震(지진) 지진", "土地(토지) 땅", "大地(대지) 넓은 땅", "地方(지방) 지방", "地平線(지평선) 지평선"],
+      antonym: { hanja: "天", hun: "하늘 천", eum: "천", words: ["天氣(천기) 날씨", "天國(천국) 하늘나라"] },
+      homonym: [{ hanja: "知", hun: "알 지", eum: "지", words: ["知識(지식) 아는 것", "知能(지능) 지능", "知人(지인) 아는 사람"] }]
+    },
+    {
+      hanja: "東", hun: "동녘 동", eum: "동", meaning: "동쪽",
+      words: ["東方(동방) 동쪽 지방", "東西(동서) 동쪽과 서쪽", "東洋(동양) 동양", "東海(동해) 동해", "東南(동남) 동남쪽", "東北(동북) 동북쪽", "東風(동풍) 동쪽 바람", "東部(동부) 동쪽 부분", "極東(극동) 극동 지역", "中東(중동) 중동"],
+      antonym: { hanja: "西", hun: "서녘 서", eum: "서", words: ["西方(서방) 서쪽 지방", "西洋(서양) 서양", "西部(서부) 서쪽 부분"] },
+      homonym: [{ hanja: "冬", hun: "겨울 동", eum: "동", words: ["冬季(동계) 겨울철", "冬眠(동면) 겨울잠", "冬至(동지) 겨울 절기"] }, { hanja: "動", hun: "움직일 동", eum: "동", words: ["動物(동물) 동물", "運動(운동) 운동", "動作(동작) 동작"] }]
+    },
+    {
+      hanja: "西", hun: "서녘 서", eum: "서", meaning: "서쪽",
+      words: ["西方(서방) 서쪽 지방", "西洋(서양) 서양", "西部(서부) 서쪽 부분", "西海(서해) 서해", "東西(동서) 동쪽과 서쪽", "西歐(서구) 서유럽", "西風(서풍) 서쪽 바람", "西南(서남) 서남쪽"],
+      antonym: { hanja: "東", hun: "동녘 동", eum: "동", words: ["東方(동방) 동쪽 지방", "東洋(동양) 동양", "東海(동해) 동해"] },
+      homonym: [{ hanja: "書", hun: "글 서", eum: "서", words: ["書籍(서적) 책", "書類(서류) 문서", "圖書館(도서관) 도서관"] }]
+    },
+    {
+      hanja: "南", hun: "남녘 남", eum: "남", meaning: "남쪽",
+      words: ["南方(남방) 남쪽 지방", "南北(남북) 남쪽과 북쪽", "南海(남해) 남해", "南部(남부) 남쪽 부분", "南極(남극) 남극", "江南(강남) 강 남쪽", "南風(남풍) 남쪽 바람", "南韓(남한) 남한", "南美(남미) 남아메리카"],
+      antonym: { hanja: "北", hun: "북녘 북", eum: "북", words: ["北方(북방) 북쪽 지방", "北極(북극) 북극", "北韓(북한) 북한"] },
+      homonym: [{ hanja: "男", hun: "사내 남", eum: "남", words: ["男子(남자) 남자", "男女(남녀) 남자와 여자", "男性(남성) 남성"] }]
+    },
+    {
+      hanja: "北", hun: "북녘 북", eum: "북", meaning: "북쪽",
+      words: ["北方(북방) 북쪽 지방", "北極(북극) 북극", "北韓(북한) 북한", "北部(북부) 북쪽 부분", "北風(북풍) 북쪽 바람", "北美(북미) 북아메리카", "南北(남북) 남쪽과 북쪽", "北歐(북구) 북유럽"],
+      antonym: { hanja: "南", hun: "남녘 남", eum: "남", words: ["南方(남방) 남쪽 지방", "南海(남해) 남해", "南極(남극) 남극"] },
+      homonym: []
+    },
+    {
+      hanja: "父", hun: "아비 부", eum: "부", meaning: "아버지",
+      words: ["父母(부모) 아버지와 어머니", "父子(부자) 아버지와 아들", "父親(부친) 아버지", "祖父(조부) 할아버지", "養父(양부) 양아버지", "繼父(계부) 의붓아버지", "父兄(부형) 아버지와 형", "師父(사부) 스승"],
+      antonym: { hanja: "母", hun: "어미 모", eum: "모", words: ["母親(모친) 어머니", "母校(모교) 출신 학교", "母國(모국) 고국"] },
+      homonym: [{ hanja: "夫", hun: "지아비 부", eum: "부", words: ["夫人(부인) 아내", "夫婦(부부) 부부"] }, { hanja: "部", hun: "떼 부", eum: "부", words: ["部分(부분) 부분", "部隊(부대) 부대"] }]
+    },
+    {
+      hanja: "母", hun: "어미 모", eum: "모", meaning: "어머니",
+      words: ["母親(모친) 어머니", "母校(모교) 출신 학교", "母國(모국) 고국", "母語(모어) 모국어", "父母(부모) 아버지와 어머니", "祖母(조모) 할머니", "養母(양모) 양어머니", "繼母(계모) 의붓어머니", "母性(모성) 어머니의 성질"],
+      antonym: { hanja: "父", hun: "아비 부", eum: "부", words: ["父親(부친) 아버지", "父子(부자) 아버지와 아들"] },
+      homonym: [{ hanja: "毛", hun: "털 모", eum: "모", words: ["毛髮(모발) 머리털", "毛皮(모피) 털가죽"] }]
+    },
+    {
+      hanja: "兄", hun: "형 형", eum: "형", meaning: "형, 오빠",
+      words: ["兄弟(형제) 형과 동생", "兄妹(형매) 형과 누이", "父兄(부형) 아버지와 형", "義兄(의형) 의형제의 형", "兄嫂(형수) 형의 아내"],
+      antonym: { hanja: "弟", hun: "아우 제", eum: "제", words: ["弟子(제자) 제자", "兄弟(형제) 형과 동생"] },
+      homonym: [{ hanja: "刑", hun: "형벌 형", eum: "형", words: ["刑罰(형벌) 형벌", "死刑(사형) 사형"] }, { hanja: "形", hun: "모양 형", eum: "형", words: ["形態(형태) 형태", "形式(형식) 형식"] }]
+    },
+    {
+      hanja: "弟", hun: "아우 제", eum: "제", meaning: "동생, 제자",
+      words: ["弟子(제자) 제자", "兄弟(형제) 형과 동생", "子弟(자제) 자식과 아우", "師弟(사제) 스승과 제자", "義弟(의제) 의형제의 동생"],
+      antonym: { hanja: "兄", hun: "형 형", eum: "형", words: ["兄弟(형제) 형과 동생", "父兄(부형) 아버지와 형"] },
+      homonym: [{ hanja: "第", hun: "차례 제", eum: "제", words: ["第一(제일) 첫 번째", "第二(제이) 두 번째"] }, { hanja: "題", hun: "제목 제", eum: "제", words: ["題目(제목) 제목", "問題(문제) 문제"] }]
+    },
+    {
+      hanja: "子", hun: "아들 자", eum: "자", meaning: "아들, 자식",
+      words: ["子女(자녀) 아들과 딸", "子孫(자손) 자손", "父子(부자) 아버지와 아들", "弟子(제자) 제자", "孝子(효자) 효도하는 아들", "王子(왕자) 왕의 아들", "君子(군자) 덕이 높은 사람"],
+      antonym: { hanja: "女", hun: "여자 여", eum: "여", words: ["女子(여자) 여자", "女性(여성) 여성", "女王(여왕) 여왕"] },
+      homonym: [{ hanja: "自", hun: "스스로 자", eum: "자", words: ["自己(자기) 자기 자신", "自由(자유) 자유", "自然(자연) 자연"] }, { hanja: "字", hun: "글자 자", eum: "자", words: ["文字(문자) 글자", "漢字(한자) 한자"] }]
+    },
+    {
+      hanja: "女", hun: "여자 여", eum: "여", meaning: "여자",
+      words: ["女子(여자) 여자", "女性(여성) 여성", "女王(여왕) 여왕", "男女(남녀) 남자와 여자", "少女(소녀) 소녀", "女神(여신) 여신", "女軍(여군) 여군", "才女(재녀) 재주 있는 여성"],
+      antonym: { hanja: "男", hun: "사내 남", eum: "남", words: ["男子(남자) 남자", "男性(남성) 남성", "男女(남녀) 남자와 여자"] },
+      homonym: [{ hanja: "如", hun: "같을 여", eum: "여", words: ["如何(여하) 어떠함", "如實(여실) 사실 그대로"] }]
+    },
+    {
+      hanja: "長", hun: "길 장", eum: "장", meaning: "길다, 어른",
+      words: ["長期(장기) 긴 기간", "長點(장점) 좋은 점", "成長(성장) 성장", "長壽(장수) 오래 삶", "長距離(장거리) 먼 거리", "校長(교장) 학교 교장", "長男(장남) 맏아들", "延長(연장) 늘림", "部長(부장) 부장", "長短(장단) 길고 짧음"],
+      antonym: { hanja: "短", hun: "짧을 단", eum: "단", words: ["短期(단기) 짧은 기간", "短點(단점) 나쁜 점", "短距離(단거리) 짧은 거리"] },
+      homonym: [{ hanja: "場", hun: "마당 장", eum: "장", words: ["場所(장소) 장소", "市場(시장) 시장", "廣場(광장) 광장"] }]
+    },
+    {
+      hanja: "短", hun: "짧을 단", eum: "단", meaning: "짧다",
+      words: ["短期(단기) 짧은 기간", "短點(단점) 나쁜 점", "短距離(단거리) 짧은 거리", "短篇(단편) 짧은 작품", "長短(장단) 길고 짧음", "短命(단명) 짧은 목숨", "短縮(단축) 줄임"],
+      antonym: { hanja: "長", hun: "길 장", eum: "장", words: ["長期(장기) 긴 기간", "長點(장점) 좋은 점", "長壽(장수) 오래 삶"] },
+      homonym: [{ hanja: "單", hun: "홑 단", eum: "단", words: ["單純(단순) 단순", "單語(단어) 단어"] }]
+    },
+    {
+      hanja: "高", hun: "높을 고", eum: "고", meaning: "높다",
+      words: ["高等(고등) 높은 등급", "高速(고속) 빠른 속도", "高山(고산) 높은 산", "高度(고도) 높이", "最高(최고) 가장 높음", "高層(고층) 높은 층", "高價(고가) 높은 가격", "高校(고교) 고등학교", "崇高(숭고) 높고 고귀함", "高原(고원) 높은 들판"],
+      antonym: { hanja: "低", hun: "낮을 저", eum: "저", words: ["低等(저등) 낮은 등급", "低速(저속) 느린 속도", "低價(저가) 낮은 가격"] },
+      homonym: [{ hanja: "古", hun: "옛 고", eum: "고", words: ["古代(고대) 고대", "古典(고전) 고전", "古物(고물) 오래된 물건"] }, { hanja: "苦", hun: "쓸 고", eum: "고", words: ["苦生(고생) 고생", "苦痛(고통) 고통"] }]
+    },
+    {
+      hanja: "低", hun: "낮을 저", eum: "저", meaning: "낮다",
+      words: ["低等(저등) 낮은 등급", "低速(저속) 느린 속도", "低價(저가) 낮은 가격", "低下(저하) 낮아짐", "低學年(저학년) 낮은 학년", "低溫(저온) 낮은 온도", "最低(최저) 가장 낮음", "低俗(저속) 저속함"],
+      antonym: { hanja: "高", hun: "높을 고", eum: "고", words: ["高等(고등) 높은 등급", "最高(최고) 가장 높음"] },
+      homonym: [{ hanja: "底", hun: "밑 저", eum: "저", words: ["底部(저부) 밑 부분", "徹底(철저) 철저함"] }]
+    },
+    {
+      hanja: "上", hun: "위 상", eum: "상", meaning: "위, 오르다",
+      words: ["上級(상급) 높은 등급", "上衣(상의) 윗옷", "上昇(상승) 오름", "向上(향상) 나아짐", "以上(이상) 그 이상", "上下(상하) 위와 아래", "頂上(정상) 꼭대기", "上陸(상륙) 땅에 오름", "最上(최상) 가장 위"],
+      antonym: { hanja: "下", hun: "아래 하", eum: "하", words: ["下級(하급) 낮은 등급", "下降(하강) 내려감", "以下(이하) 그 이하"] },
+      homonym: [{ hanja: "賞", hun: "상줄 상", eum: "상", words: ["賞品(상품) 상품", "受賞(수상) 상을 받음"] }]
+    },
+    {
+      hanja: "下", hun: "아래 하", eum: "하", meaning: "아래, 내리다",
+      words: ["下級(하급) 낮은 등급", "下降(하강) 내려감", "以下(이하) 그 이하", "天下(천하) 세상 전체", "上下(상하) 위와 아래", "地下(지하) 땅 아래", "下山(하산) 산에서 내려옴", "最下(최하) 가장 아래", "部下(부하) 아랫사람"],
+      antonym: { hanja: "上", hun: "위 상", eum: "상", words: ["上級(상급) 높은 등급", "以上(이상) 그 이상", "上昇(상승) 오름"] },
+      homonym: [{ hanja: "夏", hun: "여름 하", eum: "하", words: ["夏季(하계) 여름철", "夏至(하지) 여름 절기"] }]
+    },
+    {
+      hanja: "白", hun: "흰 백", eum: "백", meaning: "희다, 밝다",
+      words: ["白色(백색) 흰색", "白紙(백지) 흰 종이", "白雪(백설) 흰 눈", "白人(백인) 백인", "白衣(백의) 흰옷", "告白(고백) 고백", "白髮(백발) 흰 머리카락", "空白(공백) 빈 곳", "白晝(백주) 대낮"],
+      antonym: { hanja: "黑", hun: "검을 흑", eum: "흑", words: ["黑色(흑색) 검은색", "黑人(흑인) 흑인", "黑板(흑판) 칠판"] },
+      homonym: [{ hanja: "百", hun: "백 백", eum: "백", words: ["百年(백년) 백 해", "百點(백점) 만점"] }]
+    },
+    {
+      hanja: "黑", hun: "검을 흑", eum: "흑", meaning: "검다",
+      words: ["黑色(흑색) 검은색", "黑人(흑인) 흑인", "黑板(흑판) 칠판", "漆黑(칠흑) 칠흑같이 어두움", "黑白(흑백) 흑과 백", "黑字(흑자) 흑자", "黑幕(흑막) 비밀스러운 음모", "黑海(흑해) 흑해"],
+      antonym: { hanja: "白", hun: "흰 백", eum: "백", words: ["白色(백색) 흰색", "白紙(백지) 흰 종이", "白雪(백설) 흰 눈"] },
+      homonym: []
+    },
+    {
+      hanja: "中", hun: "가운데 중", eum: "중", meaning: "가운데, 중간",
+      words: ["中心(중심) 중심", "中間(중간) 중간", "中學(중학) 중학교", "中國(중국) 중국", "集中(집중) 한 곳에 모음", "中毒(중독) 중독", "中止(중지) 중간에 멈춤", "中東(중동) 중동", "中年(중년) 중간 나이", "中繼(중계) 중계"],
+      antonym: { hanja: "外", hun: "밖 외", emu: "외", words: ["外部(외부) 바깥 부분", "外國(외국) 다른 나라", "海外(해외) 바다 밖"] },
+      homonym: [{ hanja: "重", hun: "무거울 중", eum: "중", words: ["重要(중요) 중요함", "重量(중량) 무게", "重力(중력) 중력"] }]
+    },
+    {
+      hanja: "心", hun: "마음 심", eum: "심", meaning: "마음",
+      words: ["心理(심리) 마음의 이치", "中心(중심) 중심", "心臟(심장) 심장", "關心(관심) 관심", "好奇心(호기심) 호기심", "良心(양심) 양심", "決心(결심) 결심", "安心(안심) 안심", "熱心(열심) 열심", "野心(야심) 야심"],
+      antonym: { hanja: "身", hun: "몸 신", eum: "신", words: ["身體(신체) 신체", "身分(신분) 신분", "自身(자신) 자기 자신"] },
+      homonym: [{ hanja: "深", hun: "깊을 심", eum: "심", words: ["深度(심도) 깊이", "深夜(심야) 깊은 밤", "深海(심해) 깊은 바다"] }]
+    }
+  ]
+};
+
+let currentGrade = null;
+let currentIdx = 0;
+let locked = getLocked();
+
+// 화면 전환
+function showMenu() {
+  document.getElementById("menu-screen").style.display = "";
+  document.getElementById("grade-screen").style.display = "none";
+  document.getElementById("learn-screen").style.display = "none";
+  renderGradeGrid();
+}
+function showGrade() {
+  document.getElementById("menu-screen").style.display = "none";
+  document.getElementById("grade-screen").style.display = "";
+  document.getElementById("learn-screen").style.display = "none";
+}
+function showLearn() {
+  document.getElementById("menu-screen").style.display = "none";
+  document.getElementById("grade-screen").style.display = "none";
+  document.getElementById("learn-screen").style.display = "";
+  currentIdx = 0;
+  renderHanja();
+}
+
+function renderGradeGrid() {
+  const grid = document.getElementById("grade-grid");
+  grid.innerHTML = GRADES.map(g => {
+    const isLocked = locked[g.name];
+    return `<div class="grade-card ${isLocked ? 'locked' : ''}" onclick="${isLocked ? 'alert(\"🔒 잠겨있습니다! 아빠에게 열어달라고 하세요 😊\")' : `selectGrade('${g.name}')`}">
+      ${isLocked ? '<span class="lock-icon">🔒</span>' : ''}
+      <div class="emoji">${g.emoji}</div>
+      <div class="name">${g.name}</div>
+    </div>`;
+  }).join("");
+}
+
+function selectGrade(name) {
+  currentGrade = name;
+  currentIdx = 0;
+  document.getElementById("grade-title").textContent = GRADES.find(g => g.name === name).emoji + " " + name;
+  showGrade();
+}
+
+function renderHanja() {
+  const data = HANJA_DATA[currentGrade];
+  if (!data) { alert("데이터 준비 중입니다!"); showGrade(); return; }
+  const h = data[currentIdx];
+  document.getElementById("learn-title").textContent = currentGrade + " 학습";
+  document.getElementById("learn-progress").textContent = (currentIdx + 1) + " / " + data.length;
+
+  let homonymHtml = "";
+  if (h.homonym && h.homonym.length > 0) {
+    homonymHtml = h.homonym.map(hom => `
+      <div class="homonym-item">
+        <div class="homonym-hanja">${hom.hanja} <span style="font-size:1rem;color:#666;">${hom.hun}</span></div>
+        <div class="word-list" style="margin-top:0.4rem;">${hom.words.map(w => `<span class="word-tag">${w}</span>`).join("")}</div>
+      </div>`).join("");
+  } else {
+    homonymHtml = "<p style='color:#999; font-size:0.9rem;'>없음</p>";
+  }
+
+  document.getElementById("hanja-card").innerHTML = `
+    <div class="hanja-main">${h.hanja}</div>
+    <div class="hanja-hun">${h.hun} [${h.eum}]</div>
+    <div class="hanja-meaning">뜻: ${h.meaning}</div>
+    <div class="section">
+      <div class="section-title">📚 한자어</div>
+      <div class="word-list">${h.words.map(w => `<span class="word-tag">${w}</span>`).join("")}</div>
+    </div>
+    <div class="section">
+      <div class="section-title">↔️ 반대말</div>
+      <div class="antonym-box">
+        <div class="antonym-hanja">${h.antonym.hanja} <span style="font-size:1rem;color:#888;">${h.antonym.hun}</span></div>
+        <div class="word-list" style="margin-top:0.5rem;">${h.antonym.words.map(w => `<span class="word-tag">${w}</span>`).join("")}</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">🔤 동음이의어</div>
+      ${homonymHtml}
+    </div>
+  `;
+}
+
+function nextHanja() {
+  const data = HANJA_DATA[currentGrade];
+  if (currentIdx < data.length - 1) { currentIdx++; renderHanja(); }
+  else { alert("🎉 " + currentGrade + " 학습 완료!"); showGrade(); }
+}
+function prevHanja() {
+  if (currentIdx > 0) { currentIdx--; renderHanja(); }
+}
+
+// 관리자
+function openAdmin() { document.getElementById("admin-modal").classList.add("show"); }
+function closeAdmin() {
+  document.getElementById("admin-modal").classList.remove("show");
+  document.getElementById("admin-login").style.display = "";
+  document.getElementById("admin-panel").classList.add("hidden");
+  document.getElementById("admin-pw").value = "";
+}
+function checkPw() {
+  if (document.getElementById("admin-pw").value === ADMIN_PW) {
+    document.getElementById("admin-login").style.display = "none";
+    document.getElementById("admin-panel").classList.remove("hidden");
+    renderAdminGrades();
+  } else { alert("❌ 비밀번호 틀렸습니다"); }
+}
+function renderAdminGrades() {
+  const list = document.getElementById("admin-grade-list");
+  list.innerHTML = GRADES.map(g => `
+    <div class="admin-grade-item">
+      <span>${g.emoji} ${g.name}</span>
+      <button class="toggle-btn ${locked[g.name] ? 'closed' : 'open'}" onclick="toggleGrade('${g.name}')">
+        ${locked[g.name] ? '🔒 잠김' : '🔓 열림'}
+      </button>
+    </div>`).join("");
+}
+function toggleGrade(name) {
+  locked[name] = !locked[name];
+  saveLocked(locked);
+  renderAdminGrades();
+  renderGradeGrid();
+}
+
+// 시작
+showMenu();
+</script>
 </body>
 </html>
