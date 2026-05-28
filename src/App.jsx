@@ -1,1 +1,9 @@
-﻿import React from "react"; export default function App() { return ( <div style={{background:"linear-gradient(135deg,#667eea,#764ba2)",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",color:"white",fontFamily:"sans-serif"}}> <h1 style={{fontSize:"3rem",marginBottom:"1rem"}}>🌟 지호천자문 🌟</h1> <p style={{fontSize:"1.2rem"}}>한자 마법으로 세상을 구하자!</p> </div> ); }
+﻿import React from "react";
+export default function App() {
+  return (
+    <div style={{background:"linear-gradient(135deg,#667eea,#764ba2)",minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",color:"white",fontFamily:"sans-serif"}}>
+      <h1 style={{fontSize:"3rem",marginBottom:"1rem"}}>🌟 지호한자 🌟</h1>
+      <p style={{fontSize:"1.2rem"}}>한자 마법으로 세상을 구하자!</p>
+    </div>
+  );
+}
