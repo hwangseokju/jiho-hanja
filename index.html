@@ -1,12 +1,69 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>지호한자</title>
-    <script type="module" crossorigin src="/jiho-chanjamun/assets/index-B-KkBKw4.js"></script>
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>지호한자</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Malgun Gothic', sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      min-height: 100vh;
+      color: white;
+    }
+    .header {
+      text-align: center;
+      padding: 2rem 1rem 1rem;
+    }
+    .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .header p { opacity: 0.9; font-size: 1.1rem; }
+    .grade-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    .grade-card {
+      background: rgba(255,255,255,0.15);
+      border-radius: 1rem;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid rgba(255,255,255,0.3);
+    }
+    .grade-card:hover {
+      background: rgba(255,255,255,0.25);
+      transform: translateY(-5px);
+    }
+    .grade-card .emoji { font-size: 2.5rem; }
+    .grade-card .name { font-size: 1.3rem; font-weight: bold; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🌟 지호한자 🌟</h1>
+    <p>한자 마법으로 세상을 구하자!</p>
+  </div>
+  <div class="grade-grid">
+    <div class="grade-card"><div class="emoji">🌱</div><div class="name">8급</div></div>
+    <div class="grade-card"><div class="emoji">🌿</div><div class="name">준7급</div></div>
+    <div class="grade-card"><div class="emoji">🍀</div><div class="name">7급</div></div>
+    <div class="grade-card"><div class="emoji">💧</div><div class="name">준6급</div></div>
+    <div class="grade-card"><div class="emoji">🌊</div><div class="name">6급</div></div>
+    <div class="grade-card"><div class="emoji">⚡</div><div class="name">준5급</div></div>
+    <div class="grade-card"><div class="emoji">🔥</div><div class="name">5급</div></div>
+    <div class="grade-card"><div class="emoji">🌪️</div><div class="name">준4급</div></div>
+    <div class="grade-card"><div class="emoji">❄️</div><div class="name">4급</div></div>
+    <div class="grade-card"><div class="emoji">🐉</div><div class="name">준3급</div></div>
+    <div class="grade-card"><div class="emoji">⭐</div><div class="name">3급</div></div>
+    <div class="grade-card"><div class="emoji">🌙</div><div class="name">2급</div></div>
+    <div class="grade-card"><div class="emoji">☀️</div><div class="name">1급</div></div>
+    <div class="grade-card"><div class="emoji">💎</div><div class="name">준특급</div></div>
+    <div class="grade-card"><div class="emoji">👑</div><div class="name">특급</div></div>
+  </div>
+</body>
 </html>
